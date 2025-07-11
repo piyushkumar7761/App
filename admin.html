@@ -1,0 +1,103 @@
+<!-- admin.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel - Kya Hai Mahaul</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: Arial;
+      padding: 20px;
+    }
+    h2 {
+      text-align: center;
+    }
+    input, textarea {
+      width: 100%;
+      margin: 8px 0;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 20px;
+      background: #e50914;
+      border: none;
+      color: white;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .back-link {
+      display: block;
+      margin-top: 20px;
+      text-align: center;
+    }
+    .back-link a {
+      color: #ccc;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>🛠️ Admin Panel - Kya Hai Mahaul</h2>
+
+  <input id="homeInput" placeholder="YouTube Channel Link (e.g. https://youtube.com/@kyahaimahaul)" />
+  <input id="videoInput" placeholder="Main Video Link (e.g. https://youtu.be/abc123)" />
+  <input id="shortInput" placeholder="Short Video Link" />
+  <textarea id="desc1" placeholder="News Line 1"></textarea>
+  <textarea id="desc2" placeholder="News Line 2"></textarea>
+  <textarea id="desc3" placeholder="News Line 3"></textarea>
+
+  <button onclick="saveData()">✅ Save to Firebase</button>
+
+  <div class="back-link">
+    <p><a href="index.html">← Go to App Page</a></p>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBISasRnfZD0Y0UgAZDoTJ2SV2TwvzlDrM",
+      authDomain: "kyahaimahaul-e4551.firebaseapp.com",
+      databaseURL: "https://kyahaimahaul-e4551-default-rtdb.firebaseio.com",
+      projectId: "kyahaimahaul-e4551",
+      storageBucket: "kyahaimahaul-e4551.appspot.com",
+      messagingSenderId: "69916634629",
+      appId: "1:69916634629:web:60cf5433aaed97bf12766c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database().ref("mahaulApp");
+
+    function extractID(url) {
+      const reg = /(?:\/|v=|be\/)([a-zA-Z0-9_-]{11})/;
+      const match = url.match(reg);
+      return match ? match[1] : "";
+    }
+
+    function extractChannelID(url) {
+      const match = url.match(/@[\w]+|channel\/[\w-]+|user\/[\w-]+/);
+      return match ? match[0].replace(/(channel\/|user\/|@)/, '') : "";
+    }
+
+    function saveData() {
+      const data = {
+        channel: extractChannelID(document.getElementById("homeInput").value),
+        video: extractID(document.getElementById("videoInput").value),
+        short: extractID(document.getElementById("shortInput").value),
+        desc1: document.getElementById("desc1").value,
+        desc2: document.getElementById("desc2").value,
+        desc3: document.getElementById("desc3").value
+      };
+      db.set(data).then(() => alert("✅ Data saved successfully!"));
+    }
+  </script>
+
+</body>
+</html>
