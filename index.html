@@ -1,0 +1,92 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kya Hai Mahaul</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <style>
+    body { margin:0; font-family:Arial; background:#000; color:#fff; }
+    nav { background:#111; display:flex; justify-content:space-around; flex-wrap:wrap; padding:10px; }
+    nav button { background:#333; color:white; border:none; padding:10px 20px; margin:5px; border-radius:5px; cursor:pointer; }
+    section { display:none; padding:15px; }
+    section.active { display:block; }
+    iframe { width:100%; height:300px; border:none; border-radius:10px; }
+    ul { list-style:disc; padding-left:20px; }
+    footer { text-align:center; margin-top:20px; color:#888; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <button onclick="showPage('home')">Home</button>
+  <button onclick="showPage('video')">Video</button>
+  <button onclick="showPage('short')">Short</button>
+  <button onclick="showPage('desc')">Description</button>
+</nav>
+
+<section id="home" class="active">
+  <h2>🎬 YouTube Channel</h2>
+  <iframe id="homeFrame"></iframe>
+</section>
+
+<section id="video">
+  <h2>📺 Main Video</h2>
+  <iframe id="videoFrame"></iframe>
+</section>
+
+<section id="short">
+  <h2>🎞️ Short Video</h2>
+  <iframe id="shortFrame"></iframe>
+</section>
+
+<section id="desc">
+  <h2>📰 News / Description</h2>
+  <ul id="descList"></ul>
+</section>
+
+<footer>
+  <p><a href="admin.html" style="color:#888">🔐 Admin Panel</a></p>
+</footer>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBISasRnfZD0Y0UgAZDoTJ2SV2TwvzlDrM",
+    authDomain: "kyahaimahaul-e4551.firebaseapp.com",
+    databaseURL: "https://kyahaimahaul-e4551-default-rtdb.firebaseio.com",
+    projectId: "kyahaimahaul-e4551",
+    storageBucket: "kyahaimahaul-e4551.appspot.com",
+    messagingSenderId: "69916634629",
+    appId: "1:69916634629:web:60cf5433aaed97bf12766c"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database().ref("mahaulApp");
+
+  function showPage(id) {
+    document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+  }
+
+  function loadData() {
+    db.on("value", snap => {
+      const data = snap.val();
+      if (data) {
+        document.getElementById("homeFrame").src = `https://www.youtube.com/embed?listType=user_uploads&list=${data.channel}`;
+        document.getElementById("videoFrame").src = `https://www.youtube.com/embed/${data.video}`;
+        document.getElementById("shortFrame").src = `https://www.youtube.com/embed/${data.short}`;
+        document.getElementById("descList").innerHTML = `
+          <li>${data.desc1}</li>
+          <li>${data.desc2}</li>
+          <li>${data.desc3}</li>
+        `;
+      }
+    });
+  }
+
+  loadData();
+</script>
+
+</body>
+</html>
