@@ -1,97 +1,118 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Kya Hai Mahaul - App</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <title>Kya Hai Mahaul</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <style>
-    body { margin: 0; font-family: Arial; background: #000; color: #fff; }
-    nav {
+    body {
+      margin: 0;
+      font-family: sans-serif;
       background: #111;
+      color: #fff;
+    }
+    header {
+      background: #e50914;
+      padding: 15px;
+      text-align: center;
+      font-size: 24px;
+    }
+    nav {
       display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
+      overflow-x: auto;
+      background: #222;
       padding: 10px;
+      gap: 10px;
     }
     nav button {
       background: #e50914;
       color: white;
+      padding: 10px 20px;
       border: none;
-      padding: 10px 15px;
-      margin: 5px;
-      border-radius: 6px;
+      border-radius: 20px;
       font-weight: bold;
       cursor: pointer;
+      white-space: nowrap;
     }
-    section { display: none; padding: 20px; }
-    section.active { display: block; }
+    section {
+      display: none;
+      padding: 20px;
+    }
+    section.active {
+      display: block;
+    }
     iframe {
       width: 100%;
-      height: 280px;
-      margin-bottom: 15px;
-      border: none;
+      height: 200px;
+      margin: 10px 0;
       border-radius: 10px;
+    }
+    .desc-box {
+      background: #222;
+      padding: 10px;
+      border-radius: 8px;
+      margin: 8px 0;
+    }
+    .share-btn {
+      background: #25D366;
+      padding: 10px;
+      border-radius: 30px;
+      font-weight: bold;
+      display: block;
+      width: 200px;
+      text-align: center;
+      margin: 20px auto;
+      color: white;
+      text-decoration: none;
     }
     img.thumb {
       width: 100%;
       border-radius: 10px;
-      margin-bottom: 10px;
-    }
-    .desc-list li, .home-news li {
-      margin: 5px 0;
-      padding: 8px;
-      background: #111;
-      border-radius: 5px;
-    }
-    .share-btn {
-      background: #1db954;
-      padding: 12px 20px;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
+      margin: 10px 0;
     }
   </style>
 </head>
 <body>
 
-  <nav id="navbar">
-    <button onclick="showPage('home')">Home</button>
-    <button onclick="showPage('video')">Video</button>
-    <button onclick="showPage('short')">Short</button>
-    <button onclick="showPage('description')">Description</button>
-    <button onclick="showPage('share')">Share</button>
+  <header>Kya Hai Mahaul</header>
+
+  <nav>
+    <button onclick="showSection('home')">Home</button>
+    <button onclick="showSection('video')">Video</button>
+    <button onclick="showSection('short')">Short</button>
+    <button onclick="showSection('desc')">Description</button>
+    <button onclick="showSection('share')">Share</button>
   </nav>
 
-  <section id="home">
-    <h2>📰 Mahaul News</h2>
+  <section id="home" class="active">
+    <h2>📰 Latest News</h2>
     <div id="homeContent"></div>
   </section>
 
   <section id="video">
-    <h2>🎬 Mahaul Videos</h2>
+    <h2>🎬 Videos</h2>
     <div id="videoList"></div>
   </section>
 
   <section id="short">
-    <h2>🎞️ Short Videos</h2>
+    <h2>🎞 Shorts</h2>
     <div id="shortList"></div>
   </section>
 
-  <section id="description">
+  <section id="desc">
     <h2>📝 Descriptions</h2>
-    <ul class="desc-list" id="descList"></ul>
+    <div id="descList"></div>
   </section>
 
   <section id="share">
     <h2>📤 Share this App</h2>
-    <button class="share-btn" onclick="shareApp()">Share App</button>
+    <a class="share-btn" onclick="shareApp()">📱 Share App</a>
   </section>
 
   <script>
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyBISasRnfZD0Y0UgAZDoTJ2SV2TwvzlDrM",
       authDomain: "kyahaimahaul-e4551.firebaseapp.com",
@@ -101,66 +122,67 @@
       messagingSenderId: "69916634629",
       appId: "1:69916634629:web:60cf5433aaed97bf12766c"
     };
-
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database().ref("mahaulApp");
 
-    function showPage(id) {
+    // Section show/hide
+    function showSection(id) {
       document.querySelectorAll("section").forEach(sec => sec.classList.remove("active"));
       document.getElementById(id).classList.add("active");
     }
 
-    function loadApp() {
-      db.on("value", snap => {
-        const data = snap.val() || {};
+    // Load Home
+    db.child("home").on("value", snap => {
+      let html = "";
+      const data = snap.val();
+      for (let id in data) {
+        const item = data[id];
+        html = `<img class="thumb" src="${item.thumb}" /><p>${item.news}</p>` + html;
+      }
+      document.getElementById("homeContent").innerHTML = html;
+    });
 
-        // Home
-        const homeBox = document.getElementById("homeContent");
-        homeBox.innerHTML = (data.home || []).reverse().map(item => `
-          <img class="thumb" src="${item.thumb}" />
-          <ul class="home-news"><li>${item.news}</li></ul>
-        `).join("");
+    // Load Video
+    db.child("video").on("value", snap => {
+      let html = "";
+      const data = snap.val();
+      for (let id in data) {
+        const url = data[id].replace("watch?v=", "embed/").replace("youtu.be/", "youtube.com/embed/");
+        html = `<iframe src="${url}" allowfullscreen></iframe>` + html;
+      }
+      document.getElementById("videoList").innerHTML = html;
+    });
 
-        // Videos
-        const videoBox = document.getElementById("videoList");
-        videoBox.innerHTML = (data.video || []).reverse().map(link =>
-          `<iframe src="https://www.youtube.com/embed/${extractId(link)}" allowfullscreen></iframe>`
-        ).join("");
+    // Load Shorts
+    db.child("short").on("value", snap => {
+      let html = "";
+      const data = snap.val();
+      for (let id in data) {
+        const url = data[id].replace("watch?v=", "embed/").replace("youtu.be/", "youtube.com/embed/");
+        html = `<iframe src="${url}" allowfullscreen></iframe>` + html;
+      }
+      document.getElementById("shortList").innerHTML = html;
+    });
 
-        // Shorts
-        const shortBox = document.getElementById("shortList");
-        shortBox.innerHTML = (data.short || []).reverse().map(link =>
-          `<iframe src="https://www.youtube.com/embed/${extractId(link)}" allowfullscreen></iframe>`
-        ).join("");
+    // Load Descriptions
+    db.child("description").on("value", snap => {
+      let html = "";
+      const data = snap.val();
+      for (let id in data) {
+        html += `<div class="desc-box">${data[id]}</div>`;
+      }
+      document.getElementById("descList").innerHTML = html;
+    });
 
-        // Descriptions
-        const descBox = document.getElementById("descList");
-        descBox.innerHTML = (data.description || []).reverse().map(text =>
-          `<li>${text}</li>`
-        ).join("");
-      });
-    }
-
-    function extractId(url) {
-      const match = url.match(/(?:v=|\/)([0-9A-Za-z_-]{11})(?:\?|&|$)/);
-      return match ? match[1] : url.split("youtu.be/")[1];
-    }
-
+    // Share
     function shareApp() {
-      const shareData = {
-        title: "Kya Hai Mahaul App",
-        text: "Check out the Kya Hai Mahaul news app!",
-        url: window.location.href
-      };
+      const url = window.location.href;
       if (navigator.share) {
-        navigator.share(shareData).catch(err => console.log(err));
+        navigator.share({ title: "Kya Hai Mahaul", url });
       } else {
-        alert("Copy this URL: " + window.location.href);
+        prompt("Copy this app link:", url);
       }
     }
-
-    loadApp();
-    showPage("home");
   </script>
 
 </body>
