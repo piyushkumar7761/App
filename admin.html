@@ -8,7 +8,12 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
   <style>
-    body { font-family: Arial; background: #111; color: #fff; padding: 20px; }
+    body {
+      font-family: Arial;
+      background: #111;
+      color: #fff;
+      padding: 20px;
+    }
     input, textarea, button {
       display: block;
       margin: 10px 0;
@@ -23,8 +28,16 @@
       font-weight: bold;
       cursor: pointer;
     }
-    label { margin-top: 15px; font-weight: bold; display: block; }
-    img { max-width: 100%; margin-top: 10px; border-radius: 10px; }
+    label {
+      margin-top: 15px;
+      font-weight: bold;
+      display: block;
+    }
+    img {
+      max-width: 100%;
+      margin-top: 10px;
+      border-radius: 10px;
+    }
   </style>
 </head>
 <body>
@@ -55,6 +68,7 @@
   <button onclick="addDescription()">Add Description</button>
 
   <script>
+    // ✅ Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyBISasRnfZD0Y0UgAZDoTJ2SV2TwvzlDrM",
       authDomain: "kyahaimahaul-e4551.firebaseapp.com",
@@ -104,11 +118,24 @@
       }
     }
 
-    // ✅ Short Add
+    // ✅ Short Add - With Embed Conversion
     function addShort() {
-      const short = document.getElementById("shortUrl").value;
-      if (short) {
-        db.child("short").push(short);
+      const shortUrl = document.getElementById("shortUrl").value;
+      if (shortUrl) {
+        let embedUrl = shortUrl;
+
+        if (shortUrl.includes("shorts/")) {
+          const id = shortUrl.split("shorts/")[1].split("?")[0];
+          embedUrl = "https://www.youtube.com/embed/" + id;
+        } else if (shortUrl.includes("youtu.be/")) {
+          const id = shortUrl.split("youtu.be/")[1].split("?")[0];
+          embedUrl = "https://www.youtube.com/embed/" + id;
+        } else if (shortUrl.includes("watch?v=")) {
+          const id = shortUrl.split("watch?v=")[1].split("&")[0];
+          embedUrl = "https://www.youtube.com/embed/" + id;
+        }
+
+        db.child("short").push(embedUrl);
         document.getElementById("shortUrl").value = "";
         alert("✅ Short video added!");
       }
